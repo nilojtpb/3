@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema TikTok</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilo Global */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #74b9ff, #81ecec);
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            width: 350px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2d3436;
+        }
+
+        .container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #0984e3, #74b9ff);
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: block;
+        }
+
+        .container button:disabled {
+            background: #dfe6e9;
+            color: #b2bec3;
+            cursor: not-allowed;
+        }
+
+        .container button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            transform: translateY(-2px);
+        }
+
+        .link {
+            margin-top: 20px;
+            color: #0984e3;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .admin-container {
+            text-align: left;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f1f2f6;
+            border-radius: 5px;
+        }
+
+        .list-item button {
+            background: #d63031;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .list-item button:hover {
+            background: #c0392b;
+        }
+
+        .list-item input {
+            width: 50px;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #dfe6e9;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela Inicial para Seguir Perfis -->
+    <div class="container" id="followPage">
+        <h1>Siga os Perfis no TikTok</h1>
+        <p>Para acessar o sistema, siga os perfis abaixo:</p>
+        <button id="followProfile1" onclick="followProfile(1)">Seguir @thamyresp06</button>
+        <button id="followProfile2" onclick="followProfile(2)">Seguir Segundo Perfil</button>
+        <button id="proceedButton" onclick="showRegisterPage()" disabled>Continuar</button>
+    </div>
+
+    <!-- Tela de Registro -->
+    <div class="container hidden" id="registerPage">
+        <h1>Registrar</h1>
+        <input type="text" id="registerUsername" placeholder="Usuário">
+        <input type="password" id="registerPassword" placeholder="Senha">
+        <button onclick="registerUser()">Cadastrar</button>
+        <div class="link">
+            <p>Já tem uma conta? <a href="#" onclick="showLoginPage()">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Tela do Administrador -->
+    <div class="container hidden" id="adminPage">
+        <h1>Administração</h1>
+        <div class="admin-container">
+            <h2>Usuários</h2>
+            <div id="userList"></div>
+            <h2>Links</h2>
+            <div id="linkList"></div>
+        </div>
+        <button onclick="logout()">Sair</button>
+    </div>
+
+    <script>
+        // Variáveis de controle
+        let profilesFollowed = { 1: false, 2: false };
+
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+
+        function followProfile(profileNumber) {
+            const button = document.getElementById(`followProfile${profileNumber}`);
+
+            // Simula o "seguir" com uma confirmação
+            const urls = [
+                "https://www.tiktok.com/@thamyresp06?is_from_webapp=1&sender_device=pc",
+                "https://www.tiktok.com/segundoPerfil"
+            ];
+
+            const confirmFollow = confirm(`Você será redirecionado para seguir o perfil. Deseja continuar?`);
+
+            if (confirmFollow) {
+                window.open(urls[profileNumber - 1], "_blank");
+                profilesFollowed[profileNumber] = true;
+                button.textContent = "Perfil Seguido";
+                button.disabled = true;
+                checkProfilesFollowed();
+            }
+        }
+
+        function checkProfilesFollowed() {
+            const proceedButton = document.getElementById("proceedButton");
+            const allFollowed = Object.values(profilesFollowed).every(status => status);
+            proceedButton.disabled = !allFollowed;
+        }
+
+        function showRegisterPage() {
+            document.getElementById("followPage").classList.add("hidden");
+            document.getElementById("registerPage").classList.remove("hidden");
+        }
+
+        function registerUser() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (username && password) {
+                users[username] = { password: password, coins: 50 };
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Usuário registrado com sucesso!');
+                showLoginPage();
+            } else {
+                alert('Preencha todos os campos.');
+            }
+        }
+
+        function showLoginPage() {
+            alert('Funcionalidade de Login ainda não implementada!');
+        }
+
+        function logout() {
+            alert('Você saiu do sistema!');
+            location.reload();
+        }
+
+        function showAdminPage() {
+            document.getElementById("followPage").classList.add("hidden");
+            document.getElementById("registerPage").classList.add("hidden");
+            document.getElementById("adminPage").classList.remove("hidden");
+            renderAdminData();
+        }
+
+        function renderAdminData() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = "";
+            Object.keys(users).forEach(username => {
+                const div = document.createElement('div');
+                div.className = "list-item";
+                div.innerHTML = `
+                    ${username} (Moedas: ${users[username].coins})
+                    <input type="number" value="${users[username].coins}" min="0" id="coins-${username}">
+                    <button onclick="updateCoins('${username}')">Alterar Moedas</button>
+                    <button onclick="deleteUser('${username}')">Excluir</button>
+                `;
+                userList.appendChild(div);
+            });
+
+            const linkList = document.getElementById('linkList');
+            linkList.innerHTML = "";
+            links.forEach((link, index) => {
+                const div = document.createElement('div');
+                div.className = "list-item";
+                div.innerHTML = `
+                    ${link.link} 
+                    <button onclick="deleteLink(${index})">Excluir</button>
+                `;
+                linkList.appendChild(div);
+            });
+        }
+
+        function updateCoins(username) {
+            const coinsInput = document.getElementById(`coins-${username}`);
+            const newCoins = parseInt(coinsInput.value);
+            if (!isNaN(newCoins) && newCoins >= 0) {
+                users[username].coins = newCoins;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert(`Moedas de ${username} atualizadas para ${newCoins}.`);
+                renderAdminData();
+            } else {
+                alert('Por favor, insira um valor válido.');
+            }
+        }
+
+        function deleteUser(username) {
+            delete users[username];
+            localStorage.setItem('users', JSON.stringify(users));
+            renderAdminData();
+        }
+
+        function deleteLink(index) {
+            links.splice(index, 1);
+            localStorage.setItem('links', JSON.stringify(links));
+            renderAdminData();
+        }
+    </script>
+</body>
+</html>
